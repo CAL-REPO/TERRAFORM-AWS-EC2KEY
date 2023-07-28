@@ -90,62 +90,62 @@ resource "aws_key_pair" "KEY" {
     }
 }
 
-# # Remove private key when destroy
-# resource "null_resource" "REMOVE_KEY" {
+# Remove private key when destroy
+resource "null_resource" "REMOVE_KEY" {
 
-#     for_each = local.KEYs
-#     triggers = {
-#         KEY_PRI_WIN_FILE = try(each.value.KEY_PRI_WIN_FILE, "")
-#         KEY_PRI_LINUX_FILE = try(each.value.KEY_PRI_LINUX_FILE, "")
-#         KEY_PRI_RUNNER_FILE =  try(each.value.KEY_PRI_RUNNER_FILE, "")
-#         KEY_PRI_S3_FILE =  try(each.value.KEY_PRI_S3_FILE, "")
-#         KEY_PUB_WIN_FILE = try(each.value.KEY_PUB_WIN_FILE, "")
-#         KEY_PUB_LINUX_FILE = try(each.value.KEY_PUB_LINUX_FILE, "")
-#         KEY_PUB_RUNNER_FILE =  try(each.value.KEY_PUB_RUNNER_FILE, "")
-#         KEY_PUB_S3_FILE =  try(each.value.KEY_PUB_S3_FILE, "")
-#         PROFILE = "${var.PROFILE}"
-#     }
+    for_each = local.KEYs
+    triggers = {
+        KEY_PRI_WIN_FILE = try(each.value.KEY_PRI_WIN_FILE, "")
+        KEY_PRI_LINUX_FILE = try(each.value.KEY_PRI_LINUX_FILE, "")
+        KEY_PRI_RUNNER_FILE =  try(each.value.KEY_PRI_RUNNER_FILE, "")
+        KEY_PRI_S3_FILE =  try(each.value.KEY_PRI_S3_FILE, "")
+        KEY_PUB_WIN_FILE = try(each.value.KEY_PUB_WIN_FILE, "")
+        KEY_PUB_LINUX_FILE = try(each.value.KEY_PUB_LINUX_FILE, "")
+        KEY_PUB_RUNNER_FILE =  try(each.value.KEY_PUB_RUNNER_FILE, "")
+        KEY_PUB_S3_FILE =  try(each.value.KEY_PUB_S3_FILE, "")
+        PROFILE = "${var.PROFILE}"
+    }
 
-#     provisioner "local-exec" {
-#         when    = destroy
-#         interpreter = ["bash", "-c"]
-#         command = <<-EOF
-#             if [ -f "${self.triggers.KEY_PRI_WIN_FILE}" ]; then
-#                 sudo rm -rf "${self.triggers.KEY_PRI_WIN_FILE}"
-#                 if [ -f "${self.triggers.KEY_PRI_S3_FILE}" ]; then
-#                     aws s3 rm "s3://${self.triggers.KEY_PRI_S3_FILE}" --profile ${self.triggers.PROFILE}
-#                 fi
-#             fi
-#             if [ -f "${self.triggers.KEY_PUB_WIN_FILE}" ]; then
-#                 sudo rm -rf "${self.triggers.KEY_PUB_WIN_FILE}"
-#                 if [ -f "${self.triggers.KEY_PUB_S3_FILE}" ]; then
-#                     aws s3 rm "s3://${self.triggers.KEY_PUB_S3_FILE}" --profile ${self.triggers.PROFILE}
-#                 fi
-#             fi
-#             if [ -f "${self.triggers.KEY_PRI_LINUX_FILE}" ]; then
-#                 sudo rm -rf "${self.triggers.KEY_PRI_LINUX_FILE}"
-#                 if [ -f "${self.triggers.KEY_PRI_S3_FILE}" ]; then
-#                     aws s3 rm "s3://${self.triggers.KEY_PRI_S3_FILE}" --profile ${self.triggers.PROFILE}
-#                 fi
-#             fi
-#             if [ -f "${self.triggers.KEY_PUB_LINUX_FILE}" ]; then
-#                 sudo rm -rf "${self.triggers.KEY_PUB_LINUX_FILE}"
-#                 if [ -f "${self.triggers.KEY_PUB_S3_FILE}" ]; then
-#                     aws s3 rm "s3://${self.triggers.KEY_PUB_S3_FILE}" --profile ${self.triggers.PROFILE}
-#                 fi
-#             fi
-#             if [ -f "${self.triggers.KEY_PRI_RUNNER_FILE}" ]; then
-#                 sudo rm -rf "${self.triggers.KEY_PRI_RUNNER_FILE}"
-#                 if [ -f "${self.triggers.KEY_PRI_S3_FILE}" ]; then
-#                     aws s3 rm "s3://${self.triggers.KEY_PRI_S3_FILE}" --profile ${self.triggers.PROFILE}
-#                 fi
-#             fi
-#             if [ -f "${self.triggers.KEY_PUB_RUNNER_FILE}" ]; then
-#                 sudo rm -rf "${self.triggers.KEY_PUB_RUNNER_FILE}"
-#                 if [ -f "${self.triggers.KEY_PUB_S3_FILE}" ]; then
-#                     aws s3 rm "s3://${self.triggers.KEY_PUB_S3_FILE}" --profile ${self.triggers.PROFILE}
-#                 fi
-#             fi
-#         EOF
-#     }
-# }
+    provisioner "local-exec" {
+        when    = destroy
+        interpreter = ["bash", "-c"]
+        command = <<-EOF
+            if [ -n "${self.triggers.KEY_PRI_WIN_FILE}" ]; then
+                sudo rm -rf "${self.triggers.KEY_PRI_WIN_FILE}"
+                if [ -n "${self.triggers.KEY_PRI_S3_FILE}" ]; then
+                    aws s3 rm "s3://${self.triggers.KEY_PRI_S3_FILE}" --profile ${self.triggers.PROFILE}
+                fi
+            fi
+            if [ -n "${self.triggers.KEY_PUB_WIN_FILE}" ]; then
+                sudo rm -rf "${self.triggers.KEY_PUB_WIN_FILE}"
+                if [ -n "${self.triggers.KEY_PUB_S3_FILE}" ]; then
+                    aws s3 rm "s3://${self.triggers.KEY_PUB_S3_FILE}" --profile ${self.triggers.PROFILE}
+                fi
+            fi
+            if [ -n "${self.triggers.KEY_PRI_LINUX_FILE}" ]; then
+                sudo rm -rf "${self.triggers.KEY_PRI_LINUX_FILE}"
+                if [ -n "${self.triggers.KEY_PRI_S3_FILE}" ]; then
+                    aws s3 rm "s3://${self.triggers.KEY_PRI_S3_FILE}" --profile ${self.triggers.PROFILE}
+                fi
+            fi
+            if [ -n "${self.triggers.KEY_PUB_LINUX_FILE}" ]; then
+                sudo rm -rf "${self.triggers.KEY_PUB_LINUX_FILE}"
+                if [ -n "${self.triggers.KEY_PUB_S3_FILE}" ]; then
+                    aws s3 rm "s3://${self.triggers.KEY_PUB_S3_FILE}" --profile ${self.triggers.PROFILE}
+                fi
+            fi
+            if [ -n "${self.triggers.KEY_PRI_RUNNER_FILE}" ]; then
+                sudo rm -rf "${self.triggers.KEY_PRI_RUNNER_FILE}"
+                if [ -n "${self.triggers.KEY_PRI_S3_FILE}" ]; then
+                    aws s3 rm "s3://${self.triggers.KEY_PRI_S3_FILE}" --profile ${self.triggers.PROFILE}
+                fi
+            fi
+            if [ -n "${self.triggers.KEY_PUB_RUNNER_FILE}" ]; then
+                sudo rm -rf "${self.triggers.KEY_PUB_RUNNER_FILE}"
+                if [ -n "${self.triggers.KEY_PUB_S3_FILE}" ]; then
+                    aws s3 rm "s3://${self.triggers.KEY_PUB_S3_FILE}" --profile ${self.triggers.PROFILE}
+                fi
+            fi
+        EOF
+    }
+}
