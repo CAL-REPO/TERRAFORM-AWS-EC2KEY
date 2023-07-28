@@ -97,6 +97,10 @@ resource "null_resource" "REMOVE_KEY" {
     triggers = {
         KEY_PRI_WIN_FILE = each.value.KEY_PRI_WIN_FILE
         KEY_PRI_LINUX_FILE = each.value.KEY_PRI_LINUX_FILE
+        KEY_PRI_S3_FILE =  each.value.KEY_PRI_S3_FILE
+        KEY_PUB_WIN_FILE = each.value.KEY_PUB_WIN_FILE
+        KEY_PUB_LINUX_FILE = each.value.KEY_PUB_LINUX_FILE
+        KEY_PUB_S3_FILE =  each.value.KEY_PUB_S3_FILE
     }
 
     provisioner "local-exec" {
@@ -105,27 +109,27 @@ resource "null_resource" "REMOVE_KEY" {
         command = <<-EOF
             if [ -f "${self.triggers.KEY_PRI_WIN_FILE}" ]; then
                 sudo rm -rf "${self.triggers.KEY_PRI_WIN_FILE}"
-                aws s3 rm "s3://${local.KEYs[count.index].KEY_PRI_S3_FILE}" --profile ${var.PROFILE})
+                aws s3 rm "s3://${self.triggers.KEYs[count.index].KEY_PRI_S3_FILE}" --profile ${var.PROFILE})
             fi
             if [ -f "${self.triggers.KEY_PUB_WIN_FILE}" ]; then
                 sudo rm -rf "${self.triggers.KEY_PUB_WIN_FILE}"
-                aws s3 rm "s3://${local.KEYs[count.index].KEY_PUB_S3_FILE}" --profile ${var.PROFILE})
+                aws s3 rm "s3://${self.triggers.KEYs[count.index].KEY_PUB_S3_FILE}" --profile ${var.PROFILE})
             fi
             if [ -f "${self.triggers.KEY_PRI_LINUX_FILE}" ]; then
                 sudo rm -rf "${self.triggers.KEY_PRI_LINUX_FILE}"
-                aws s3 rm "s3://${local.KEYs[count.index].KEY_PRI_S3_FILE}" --profile ${var.PROFILE})
+                aws s3 rm "s3://${self.triggers.KEYs[count.index].KEY_PRI_S3_FILE}" --profile ${var.PROFILE})
             fi
             if [ -f "${self.triggers.KEY_PUB_LINUX_FILE}" ]; then
                 sudo rm -rf "${self.triggers.KEY_PUB_LINUX_FILE}"
-                aws s3 rm "s3://${local.KEYs[count.index].KEY_PUB_S3_FILE}" --profile ${var.PROFILE})
+                aws s3 rm "s3://${self.triggers.KEYs[count.index].KEY_PUB_S3_FILE}" --profile ${var.PROFILE})
             fi
             if [ -f "${self.triggers.KEY_PRI_RUNNER_FILE}" ]; then
                 sudo rm -rf "${self.triggers.KEY_PRI_RUNNER_FILE}"
-                aws s3 rm "s3://${local.KEYs[count.index].KEY_PRI_S3_FILE}" --profile ${var.PROFILE})
+                aws s3 rm "s3://${self.triggers.KEYs[count.index].KEY_PRI_S3_FILE}" --profile ${var.PROFILE})
             fi
             if [ -f "${self.triggers.KEY_PUB_RUNNER_FILE}" ]; then
                 sudo rm -rf "${self.triggers.KEY_PUB_RUNNER_FILE}"
-                aws s3 rm "s3://${local.KEYs[count.index].KEY_PUB_S3_FILE}" --profile ${var.PROFILE})
+                aws s3 rm "s3://${self.triggers.KEYs[count.index].KEY_PUB_S3_FILE}" --profile ${var.PROFILE})
             fi
         EOF
     }
