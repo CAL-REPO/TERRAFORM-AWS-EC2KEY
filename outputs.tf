@@ -2,20 +2,20 @@ output "KEY_NAME" {
     value = [for KEY in local.KEYs : KEY.NAME]
 }
 
-output "KEY_FILE_NAME" {
-    value = [for KEY in local.KEYs : KEY.KEY_FILE_NAME]
+output "KEY_PRI_FILE_NAME" {
+    value = [for KEY in local.KEYs : KEY.KEY_PRI_FILE_NAME]
 }
 
-output "KEY_LINUX_FILE" {
-    value = [for KEY in local.KEYs : KEY.KEY_LINUX_FILE]
+output "KEY_PRI_LINUX_FILE" {
+    value = [for KEY in local.KEYs : KEY.KEY_PRI_LINUX_FILE]
 }
 
-output "KEY_S3_FILE" {
-    value = [for KEY in local.KEYs : KEY.KEY_S3_FILE]
+output "KEY_PRI_S3_FILE" {
+    value = [for KEY in local.KEYs : KEY.KEY_PRI_S3_FILE]
 }
 
-output "KEY_RUNNER_FILE" {
-    value = [for KEY in local.KEYs : KEY.KEY_RUNNER_FILE]
+output "KEY_PRI_RUNNER_FILE" {
+    value = [for KEY in local.KEYs : KEY.KEY_PRI_RUNNER_FILE]
 }
 
 output "OWNER_ID" {
