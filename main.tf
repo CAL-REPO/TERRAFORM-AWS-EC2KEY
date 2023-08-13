@@ -88,7 +88,7 @@ resource "aws_key_pair" "CREATE_KEY" {
     }
 }
 
-resource "null_resource" "name" {
+resource "null_resource" "ACTION_WHEN_EXECUTED_ON_RUNNER" {
     count = (length(tls_private_key.PRI_KEY) > 0 ?
             length(tls_private_key.PRI_KEY) : 0)
     triggers = {
@@ -109,7 +109,6 @@ resource "null_resource" "name" {
         EOF
     }
 }
-
 
 # Remove private key when destroy
 resource "null_resource" "REMOVE_KEY" {
