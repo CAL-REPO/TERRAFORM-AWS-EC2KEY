@@ -39,7 +39,7 @@ locals {
 }
 
 # Create key pair
-resource "aws_key_pair" "KEY" {
+resource "aws_key_pair" "CREATE_KEY" {
     count = (length(tls_private_key.PRI_KEY) > 0 ?
             length(tls_private_key.PRI_KEY) : 0)
     
@@ -58,10 +58,18 @@ resource "aws_key_pair" "KEY" {
                 sudo echo "${tls_private_key.PRI_KEY[count.index].public_key_openssh}" > "${local.KEYs[count.index].KEY_PUB_LINUX_FILE}"
                 sudo chmod 644 "${local.KEYs[count.index].KEY_PUB_LINUX_FILE}"
                 sudo chown $USER:$USER "${local.KEYs[count.index].KEY_PUB_LINUX_FILE}"
+                if [[ -n "${var.KEYs[count.index].S3_DIR}" ]]; then
+                    aws s3 cp "${local.KEYs[count.index].KEY_PRI_LINUX_FILE}" "s3://${local.KEYs[count.index].KEY_PRI_S3_FILE}" --profile ${var.PROFILE}
+                    aws s3 cp "${local.KEYs[count.index].KEY_PUB_LINUX_FILE}" "s3://${local.KEYs[count.index].KEY_PUB_S3_FILE}" --profile ${var.PROFILE}
+                fi
             fi
             if [[ -n "${var.KEYs[count.index].WIN_DIR}" ]]; then
                 sudo echo "${tls_private_key.PRI_KEY[count.index].private_key_pem}" > "${local.KEYs[count.index].KEY_PRI_WIN_FILE}"
                 sudo echo "${tls_private_key.PRI_KEY[count.index].public_key_openssh}" > "${local.KEYs[count.index].KEY_PUB_WIN_FILE}"
+                if [[ -n "${var.KEYs[count.index].S3_DIR}" ]]; then
+                    aws s3 cp "${local.KEYs[count.index].KEY_PRI_WIN_FILE}" "s3://${local.KEYs[count.index].KEY_PRI_S3_FILE}" --profile ${var.PROFILE}
+                    aws s3 cp "${local.KEYs[count.index].KEY_PUB_WIN_FILE}" "s3://${local.KEYs[count.index].KEY_PUB_S3_FILE}" --profile ${var.PROFILE}
+                fi
             fi
             if [[ -n "${var.KEYs[count.index].RUNNER_DIR}" ]]; then
                 mkdir -p "${var.KEYs[count.index].RUNNER_DIR}"
@@ -71,17 +79,7 @@ resource "aws_key_pair" "KEY" {
                 sudo echo "${tls_private_key.PRI_KEY[count.index].public_key_openssh}" > "${local.KEYs[count.index].KEY_PUB_RUNNER_FILE}"
                 sudo chmod 644 "${local.KEYs[count.index].KEY_PUB_RUNNER_FILE}"
                 sudo chown $USER:$USER "${local.KEYs[count.index].KEY_PUB_RUNNER_FILE}"
-            fi
-            if [[ -n "${var.KEYs[count.index].S3_DIR}" ]]; then
-                if [[ -n "${var.KEYs[count.index].LINUX_DIR}" ]]; then
-                    aws s3 cp "${local.KEYs[count.index].KEY_PRI_LINUX_FILE}" "s3://${local.KEYs[count.index].KEY_PRI_S3_FILE}" --profile ${var.PROFILE}
-                    aws s3 cp "${local.KEYs[count.index].KEY_PUB_LINUX_FILE}" "s3://${local.KEYs[count.index].KEY_PUB_S3_FILE}" --profile ${var.PROFILE}
-                fi
-                if [[ -n "${var.KEYs[count.index].WIN_DIR}" ]]; then
-                    aws s3 cp "${local.KEYs[count.index].KEY_PRI_WIN_FILE}" "s3://${local.KEYs[count.index].KEY_PRI_S3_FILE}" --profile ${var.PROFILE}
-                    aws s3 cp "${local.KEYs[count.index].KEY_PUB_WIN_FILE}" "s3://${local.KEYs[count.index].KEY_PUB_S3_FILE}" --profile ${var.PROFILE}
-                fi
-                if [[ -n "${var.KEYs[count.index].RUNNER_DIR}" ]]; then
+                if [[ -n "${var.KEYs[count.index].S3_DIR}" ]]; then
                     aws s3 cp "${local.KEYs[count.index].KEY_PRI_RUNNER_FILE}" "s3://${local.KEYs[count.index].KEY_PRI_S3_FILE}" --profile ${var.PROFILE}
                     aws s3 cp "${local.KEYs[count.index].KEY_PUB_RUNNER_FILE}" "s3://${local.KEYs[count.index].KEY_PUB_S3_FILE}" --profile ${var.PROFILE}
                 fi
@@ -89,6 +87,29 @@ resource "aws_key_pair" "KEY" {
         EOF
     }
 }
+
+resource "null_resource" "name" {
+    count = (length(tls_private_key.PRI_KEY) > 0 ?
+            length(tls_private_key.PRI_KEY) : 0)
+    triggers = {
+        always_run = try("${var.KEYs[count.index].RUNNER_DIR}" != "" ? timestamp() : null, null)
+    }
+    provisioner "local-exec" {
+        interpreter = ["bash", "-c"]
+        command = <<-EOF
+        if [[ -n "${var.KEYs[count.index].RUNNER_DIR}" ]]; then
+            mkdir -p "${var.KEYs[count.index].RUNNER_DIR}"
+            sudo echo "${tls_private_key.PRI_KEY[count.index].private_key_pem}" > "${local.KEYs[count.index].KEY_PRI_RUNNER_FILE}"
+            sudo chmod 400 "${local.KEYs[count.index].KEY_PRI_RUNNER_FILE}"
+            sudo chown $USER:$USER "${local.KEYs[count.index].KEY_PRI_RUNNER_FILE}"
+            sudo echo "${tls_private_key.PRI_KEY[count.index].public_key_openssh}" > "${local.KEYs[count.index].KEY_PUB_RUNNER_FILE}"
+            sudo chmod 644 "${local.KEYs[count.index].KEY_PUB_RUNNER_FILE}"
+            sudo chown $USER:$USER "${local.KEYs[count.index].KEY_PUB_RUNNER_FILE}"
+        fi
+        EOF
+    }
+}
+
 
 # Remove private key when destroy
 resource "null_resource" "REMOVE_KEY" {
