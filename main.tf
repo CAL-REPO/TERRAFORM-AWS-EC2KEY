@@ -15,7 +15,6 @@ data "aws_caller_identity" "current" {}
 resource "tls_private_key" "PRI_KEY" {
     count = (length(var.KEYs) > 0 ?
             length(var.KEYs) : 0)
-    depends_on = [ null_resource.REMOVE_KEY ]
 
     algorithm = try(var.KEYs[count.index].ALGORITHM, "RSA") # "RSA" "ED25519"
     rsa_bits  = try(var.KEYs[count.index].RSA_SIZE, 4096) # "2048" "4096"
@@ -117,7 +116,7 @@ resource "null_resource" "ACTION_WHEN_EXECUTED_ON_RUNNER" {
 # Remove private key when destroy
 resource "null_resource" "REMOVE_KEY" {
     for_each = local.KEYs
-    
+
     triggers = {
         KEY_PRI_WIN_FILE = try(each.value.KEY_PRI_WIN_FILE, "")
         KEY_PRI_LINUX_FILE = try(each.value.KEY_PRI_LINUX_FILE, "")
