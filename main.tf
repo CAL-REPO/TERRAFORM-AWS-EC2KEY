@@ -16,6 +16,7 @@ resource "tls_private_key" "PRI_KEY" {
     count = (length(var.KEYs) > 0 ?
             length(var.KEYs) : 0)
     depends_on = [ null_resource.REMOVE_KEY ]
+
     algorithm = try(var.KEYs[count.index].ALGORITHM, "RSA") # "RSA" "ED25519"
     rsa_bits  = try(var.KEYs[count.index].RSA_SIZE, 4096) # "2048" "4096"
 }
@@ -43,8 +44,8 @@ locals {
 resource "aws_key_pair" "CREATE_KEY" {
     count = (length(tls_private_key.PRI_KEY) > 0 ?
             length(tls_private_key.PRI_KEY) : 0)
-    
     depends_on = [ tls_private_key.PRI_KEY ]
+
     key_name = local.KEYs[count.index].NAME
     public_key = tls_private_key.PRI_KEY[count.index].public_key_openssh
 
@@ -92,9 +93,11 @@ resource "aws_key_pair" "CREATE_KEY" {
 resource "null_resource" "ACTION_WHEN_EXECUTED_ON_RUNNER" {
     count = (length(tls_private_key.PRI_KEY) > 0 ?
             length(tls_private_key.PRI_KEY) : 0)
+
     triggers = {
         always_run = try("${var.KEYs[count.index].RUNNER_DIR}" != "" ? timestamp() : null, null)
     }
+
     provisioner "local-exec" {
         interpreter = ["bash", "-c"]
         command = <<-EOF
@@ -113,8 +116,8 @@ resource "null_resource" "ACTION_WHEN_EXECUTED_ON_RUNNER" {
 
 # Remove private key when destroy
 resource "null_resource" "REMOVE_KEY" {
-
     for_each = local.KEYs
+    
     triggers = {
         KEY_PRI_WIN_FILE = try(each.value.KEY_PRI_WIN_FILE, "")
         KEY_PRI_LINUX_FILE = try(each.value.KEY_PRI_LINUX_FILE, "")
